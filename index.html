@@ -3,644 +3,695 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GK QUIZ</title>
+    <title>Professional Quiz Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --review: #8b5cf6;
+            --bg-gray: #f3f4f6;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --white: #ffffff;
+            --border: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            line-height: 1.6;
-            background-color: #f0f2f5;
-            padding-top: 0; 
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden; /* Prevent body scroll, use containers */
         }
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 950px;
-            margin: 0 auto 20px auto;
-        }
-        .timer {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: #f8f9fa;
-            padding: 10px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 1000; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #score {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .quiz-wrapper {
-            display: flex;
-            gap: 20px;
-            max-width: 950px;
-            margin: 0 auto;
-            align-items: flex-start;
-        }
-        .quiz-container {
-            flex-grow: 1;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            display: flex;
-            flex-direction: column;
-            height: 550px; 
-        }
-        #quiz {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .question {
-            margin-bottom: 20px;
-        }
-        .question-title {
-            font-weight: bold;
-        }
-        .question-body {
-            margin-top: 10px;
-        }
-        .feedback {
-            font-weight: bold;
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .feedback.correct {
-             background-color: #e9f7ef;
-             color: #28a745;
-        }
-        .feedback.wrong {
-            background-color: #fbe9eb;
-            color: #dc3545;
-        }
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        .matching-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .matching-table th, .matching-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-        }
-        .matching-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .quiz-navigation {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .nav-btn {
+
+        /* UTILITY */
+        .hidden { display: none !important; }
+        .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-            font-size: 1em;
+            border-radius: 6px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
         }
-        .nav-btn:disabled {
-            background-color: #ccc;
-        }
-        #submit {
-            background-color: #28a745;
-        }
-        #restart {
-            background-color: #6c757d; /* Grey color for restart */
-        }
-        #question-nav {
-            width: 200px;
-            flex-shrink: 0;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-dark); }
+        .btn-outline:hover { background: #f9fafb; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-review { background: var(--review); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        /* SCREEN 1: START SCREEN */
+        #start-screen {
+            height: 100vh;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-content: flex-start;
-            max-height: 550px;
-            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        .q-nav-btn {
-            width: 35px;
-            height: 35px;
-            border: 1px solid #ccc;
-            background-color: white;
-            cursor: pointer;
-            font-size: 1em;
+        .start-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .start-card h1 { margin-top: 0; color: var(--primary); }
+        .drive-link {
+            display: block;
+            background: #e8f0fe;
+            color: #1967d2;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+            border: 1px dashed #1967d2;
+        }
+        .drive-link:hover { background: #d2e3fc; }
+        .upload-area {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+        }
+        .timer-input-group {
+            margin-bottom: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 10px;
+        }
+        .timer-input-group input {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            width: 80px;
+            text-align: center;
+        }
+
+        /* SCREEN 2: QUIZ INTERFACE */
+        #quiz-interface {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+        .brand { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        .timer-badge {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        /* MAIN LAYOUT */
+        .exam-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* LEFT: QUESTION AREA */
+        .question-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
             padding: 0;
+            overflow: hidden;
         }
-        .q-nav-btn.answered {
-            background-color: #28a745;
-            color: white;
-            border-color: #28a745;
+        .q-scroll-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
         }
-        .q-nav-btn.correct {
-            background-color: #28a745;
-            color: white;
-            border-color: #28a745;
+        .q-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
         }
-        .q-nav-btn.wrong {
-            background-color: #dc3545;
-            color: white;
-            border-color: #dc3545;
-        }
-        .hidden {
-            display: none !important; 
-        }
+        .q-text { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; }
         
-        /* --- NEW STYLES FOR DRIVE BUTTON --- */
-        .drive-btn {
-            display: inline-block;
-            text-decoration: none;
-            background-color: #ea4335; /* Google Drive Red-ish color */
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .drive-btn:hover {
-            background-color: #d32f2f;
-        }
-        #upload-container {
+        /* Options Styling */
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .option-label {
             display: flex;
-            flex-direction: column;
             align-items: flex-start;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .file-input-group {
+        .option-label:hover { background: #f9fafb; border-color: var(--primary); }
+        .option-label input { margin-top: 4px; margin-right: 12px; }
+        .option-label.selected {
+            background: #eff6ff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        /* FOOTER NAVIGATION */
+        .q-footer {
+            height: 70px;
+            border-top: 1px solid var(--border);
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            flex-shrink: 0;
+        }
+
+        /* RIGHT: SIDEBAR PALETTE */
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            flex-shrink: 0;
         }
-        /* ----------------------------------- */
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            background: #f9fafb;
+        }
+        .legend {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        .palette-grid {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            overflow-y: auto;
+            align-content: start;
+            flex: 1;
+        }
+        .p-btn {
+            aspect-ratio: 1;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        /* Palette Status Colors */
+        .p-btn.answered { background: var(--success); color: white; border: none; }
+        .p-btn.not-answered { background: var(--danger); color: white; border: none; }
+        .p-btn.review { background: var(--review); color: white; border: none; }
+        .p-btn.current { border: 2px solid var(--primary); box-shadow: 0 0 5px rgba(37, 99, 235, 0.3); }
 
-        /* =========================================
-           MOBILE RESPONSIVE DESIGN
-           ========================================= */
+        /* RESULT SCREEN */
+        #result-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--bg-gray);
+        }
+        .score-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+        }
+        .score-big { font-size: 2.5rem; font-weight: 700; }
+        .score-total { font-size: 1rem; opacity: 0.8; }
+        
+        /* Tables for matching questions */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
+        th { background: #f9fafb; }
+
+        /* RESPONSIVE MOBILE */
         @media (max-width: 768px) {
-            body {
-                margin: 10px;
-                padding-top: 60px; 
-            }
-
-            .timer {
-                top: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                border-radius: 0;
-                border: none;
-                border-bottom: 1px solid #ccc;
-                box-sizing: border-box;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-            }
-            
-            .timer input {
-                width: 50px !important;
-            }
-
-            .header-controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 15px;
-            }
-            
-            #upload-container {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .quiz-wrapper {
-                flex-direction: column;
-            }
-
-            /* MOVED TO TOP & HORIZONTAL SCROLL */
-            #question-nav {
-                order: 1; 
-                width: 100%;
-                box-sizing: border-box;
-                
-                /* Horizontal Scroll Settings */
-                display: flex;       
-                flex-wrap: nowrap;   
-                overflow-x: auto;    
-                overflow-y: hidden;
-                padding: 15px 10px;  
-                gap: 10px;
-                max-height: auto;
-                background-color: #fff;
-                border-bottom: 1px solid #ccc;
-                
-                /* Smooth scrolling */
-                scroll-behavior: smooth; 
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            #question-nav::-webkit-scrollbar {
-                height: 4px;
-            }
-            #question-nav::-webkit-scrollbar-thumb {
-                background: #ccc;
-                border-radius: 4px;
-            }
-
-            .quiz-container {
-                order: 2; 
+            .exam-container { flex-direction: column; }
+            .sidebar { 
                 width: 100%; 
                 height: auto; 
-                min-height: 400px;
-                padding: 15px;
-                box-sizing: border-box;
+                max-height: 150px; 
+                order: -1; 
+                border-left: none;
+                border-bottom: 1px solid var(--border);
             }
-
-            .nav-btn {
-                flex: 1; 
-                padding: 12px;
-            }
-            
-            .q-nav-btn {
-                flex: 0 0 auto; 
-                width: 45px; 
-                height: 45px;
-            }
-
-            .matching-table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            
-            h1 { font-size: 1.5rem; margin: 0; }
-            .question-title { font-size: 1.1rem; }
-            label { font-size: 1rem; padding: 5px 0; display: block;}
+            .palette-grid { display: flex; overflow-x: auto; height: 80px; }
+            .p-btn { flex: 0 0 40px; height: 40px; }
+            .legend { display: none; } /* Hide legend on mobile to save space */
+            .q-scroll-content { padding: 20px; }
+            .q-footer { padding: 10px 20px; gap: 10px; flex-wrap: wrap; height: auto; }
+            .q-footer .btn { flex: 1; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
-    <div class="timer">
-        <div>Time Left: <span id="time-left">00:00</span></div>
-        <div>
-            <input type="number" id="minutes" placeholder="Min" style="width: 60px;">
-            <button id="start-timer">Start</button>
+
+    <div id="start-screen">
+        <div class="start-card">
+            <h1>🎓 Quiz </h1>
+            <p style="color: var(--text-light); margin-bottom: 20px;">Upload your question file to begin the computer-based test.</p>
+            
+            <a href="https://drive.google.com/drive/u/0/folders/1pBDT_icBPmHLNbBwmQCWgWPyhie4IiU_" target="_blank" class="drive-link">
+                📂 Step 1: Open Drive & Download File
+            </a>
+
+            <div class="upload-area">
+                <label for="upload" style="font-weight: 600; display: block; margin-bottom: 10px;">Step 2: Upload .txt File</label>
+                <input type="file" id="upload" accept=".txt">
+            </div>
+
+            <div class="timer-input-group">
+                <label>Duration (mins):</label>
+                <input type="number" id="minutes" value="15" min="1">
+            </div>
+
+            <button id="start-btn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;" disabled>Start Examination</button>
         </div>
     </div>
-    
-    <div class="header-controls">
-         <div id="upload-container">
-             <h1>Quiz</h1>
-             <div class="file-input-group">
-                 <a href="https://drive.google.com/drive/u/0/folders/1pBDT_icBPmHLNbBwmQCWgWPyhie4IiU_" target="_blank" class="drive-btn">
-                    📂 Open Google Drive Folder
-                 </a>
-                 <input type="file" id="upload" accept=".txt">
-             </div>
-         </div>
-         <div id="score" class="hidden"></div>
+
+    <div id="quiz-interface" class="hidden">
+        <header>
+            <div class="brand">GK Test Series</div>
+            <div class="timer-badge" id="time-left">00:00</div>
+        </header>
+
+        <div class="exam-container">
+            <main class="question-area">
+                <div class="q-scroll-content" id="question-content">
+                    </div>
+                
+                <div class="q-footer">
+                    <div style="display: flex; gap: 10px;">
+                        <button id="prev-btn" class="btn btn-outline">Previous</button>
+                        <button id="mark-review-btn" class="btn btn-review">Mark for Review</button>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="next-btn" class="btn btn-primary">Next</button>
+                        <button id="submit-btn" class="btn btn-success hidden">Submit Test</button>
+                        <button id="restart-footer-btn" class="btn btn-danger hidden">Take Another Test</button>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="sidebar">
+                <div class="sidebar-header">Question Palette</div>
+                <div class="legend">
+                    <div class="legend-item"><div class="dot" style="background:var(--success)"></div> Answered</div>
+                    <div class="legend-item"><div class="dot" style="background:var(--danger)"></div> Skipped</div>
+                    <div class="legend-item"><div class="dot" style="background:var(--review)"></div> Review</div>
+                    <div class="legend-item"><div class="dot" style="border:1px solid #ccc"></div> Not Visited</div>
+                </div>
+                <div class="palette-grid" id="palette-grid">
+                    </div>
+            </aside>
+        </div>
     </div>
-    
-    <div id="quiz-area" class="quiz-wrapper hidden">
-        <div class="quiz-container">
-            <div id="quiz"></div>
-            <div id="quiz-navigation" class="hidden">
-                <button id="prev" class="nav-btn">Previous</button>
-                <button id="next" class="nav-btn">Next</button>
-                <button id="submit" class="nav-btn hidden">Submit Quiz</button>
-                <button id="restart" class="nav-btn hidden">Restart Quiz</button>
+
+    <div id="result-screen" class="hidden">
+        <div class="score-card">
+            <div class="score-circle">
+                <div class="score-big" id="final-score">0</div>
+                <div class="score-total" id="total-questions">/ 0</div>
+            </div>
+            <h2>Test Submitted Successfully!</h2>
+            <p id="result-feedback" style="color: var(--text-light); margin-bottom: 30px;">
+                Review your answers or restart the test.
+            </p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button id="review-answers-btn" class="btn btn-outline">Review Answers</button>
+                <button id="restart-btn" class="btn btn-primary">Take Another Test</button>
             </div>
         </div>
-        <div id="question-nav"></div>
     </div>
 
     <script>
+        // STATE
         let quizData = [];
-        let currentQuestionIndex = 0;
-        let userAnswers = [];
+        let currentQIndex = 0;
+        let userAnswers = []; // Array of strings (selected options)
+        let questionStatus = []; // 'not-visited', 'visited', 'answered', 'review'
         let timerInterval;
         let isReviewMode = false;
 
-        const uploadInput = document.getElementById("upload");
-        const quizContainer = document.getElementById("quiz");
-        const quizArea = document.getElementById("quiz-area");
-        const scoreContainer = document.getElementById("score");
-        const nextButton = document.getElementById("next");
-        const prevButton = document.getElementById("prev");
-        const submitButton = document.getElementById("submit");
-        const restartButton = document.getElementById("restart"); 
-        const questionNav = document.getElementById("question-nav");
-        const timerDisplay = document.getElementById("time-left");
-        const startTimerButton = document.getElementById("start-timer");
-        const minutesInput = document.getElementById("minutes");
-        const quizNavigation = document.getElementById("quiz-navigation");
-        const uploadContainer = document.getElementById("upload-container");
+        // DOM ELEMENTS
+        const startScreen = document.getElementById('start-screen');
+        const quizInterface = document.getElementById('quiz-interface');
+        const resultScreen = document.getElementById('result-screen');
+        const fileInput = document.getElementById('upload');
+        const startBtn = document.getElementById('start-btn');
+        const questionContent = document.getElementById('question-content');
+        const paletteGrid = document.getElementById('palette-grid');
+        const timerDisplay = document.getElementById('time-left');
+        
+        // NAV BUTTONS
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const markReviewBtn = document.getElementById('mark-review-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const reviewAnswersBtn = document.getElementById('review-answers-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const restartFooterBtn = document.getElementById('restart-footer-btn'); // Select the new footer button
 
-        startTimerButton.addEventListener("click", () => {
-            const minutes = parseInt(minutesInput.value);
-            if (isNaN(minutes) || minutes <= 0) {
-                alert("Please enter a valid number of minutes!");
-                return;
-            }
-            startTimer(minutes);
-        });
-
-        uploadInput.addEventListener("change", function () {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    parseQuestions(e.target.result);
-                    if (quizData.length > 0) {
-                        setupQuiz();
-                    }
-                };
-                reader.readAsText(file);
+        // 1. FILE UPLOAD LOGIC
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                startBtn.disabled = false;
+                startBtn.textContent = "File Loaded - Start Examination";
             }
         });
 
-        function setupQuiz() {
-            currentQuestionIndex = 0;
-            isReviewMode = false;
-            userAnswers = new Array(quizData.length).fill(null);
-            quizArea.classList.remove("hidden");
-            quizNavigation.classList.remove("hidden");
-            uploadContainer.classList.add("hidden");
-            scoreContainer.classList.add("hidden");
-            submitButton.classList.add("hidden");
-            restartButton.classList.add("hidden"); 
+        startBtn.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseQuestions(e.target.result);
+                if(quizData.length > 0) {
+                    initializeQuiz();
+                } else {
+                    alert("No questions found in file.");
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // 2. PARSER
+        function parseQuestions(text) {
+            quizData = [];
+            const blocks = text.split(/(?=^Q\d+[:.]|^Match List-I)/m).filter(b => b.trim() !== "");
             
-            renderQuestionNav();
-            showQuestion(currentQuestionIndex);
+            blocks.forEach(block => {
+                const lines = block.trim().split('\n');
+                const firstLine = lines.shift().trim();
+                const isMatching = block.toLowerCase().includes('match list-i');
+                
+                let qText = firstLine;
+                if (!isMatching && firstLine.match(/^Q\d+[:.]/)) {
+                    qText = firstLine.substring(firstLine.search(/[:.]\s*/) + 1).trim();
+                }
+
+                let qObj = { 
+                    question: qText, 
+                    body: [], 
+                    options: [], 
+                    answer: null,
+                    isMatching: isMatching,
+                    matchData: { h: [], r: [] }
+                };
+
+                let inBody = true;
+                lines.forEach(line => {
+                    const tLine = line.trim();
+                    if (tLine.match(/^\([a-z]\)/) || tLine.toLowerCase().startsWith('options:')) {
+                        inBody = false;
+                        if(tLine.match(/^\([a-z]\)/)) qObj.options.push(tLine);
+                    } else if (tLine.match(/^(A:|Answer:)/i)) {
+                        inBody = false;
+                        let ans = tLine.split(':').slice(1).join(':').trim();
+                        const optMatch = ans.match(/^Option (\d+)/i);
+                        if(optMatch && qObj.options.length) {
+                            qObj.answer = qObj.options[parseInt(optMatch[1])-1];
+                        } else {
+                            qObj.answer = ans;
+                        }
+                    } else if (inBody) {
+                        if(isMatching) {
+                            const parts = tLine.split(/\s{2,}/);
+                            if(parts.length >= 2) {
+                                if(tLine.toLowerCase().startsWith('list-i')) qObj.matchData.h = parts;
+                                else if(tLine.match(/^[A-Z]\./)) qObj.matchData.r.push([parts[0], parts.slice(1).join(' ')]);
+                                else qObj.body.push(tLine);
+                            } else qObj.body.push(tLine);
+                        } else {
+                            qObj.body.push(tLine);
+                        }
+                    } else {
+                        if(tLine.match(/^\([a-z]\)/)) qObj.options.push(tLine);
+                    }
+                });
+                quizData.push(qObj);
+            });
         }
 
-        function startTimer(minutes) {
-            let timeLeft = minutes * 60;
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                const min = Math.floor(timeLeft / 60);
-                const sec = timeLeft % 60;
-                timerDisplay.textContent = `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    alert("Time's up!");
-                    handleSubmit();
+        // 3. INITIALIZATION
+        function initializeQuiz() {
+            currentQIndex = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            questionStatus = new Array(quizData.length).fill('not-visited');
+            questionStatus[0] = 'visited';
+            isReviewMode = false;
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizInterface.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+            restartFooterBtn.classList.add('hidden'); // Ensure hidden at start
+            nextBtn.classList.remove('hidden');
+            markReviewBtn.classList.remove('hidden');
+
+            renderPalette();
+            loadQuestion(0);
+            
+            const min = parseInt(document.getElementById('minutes').value) || 15;
+            startTimer(min * 60);
+        }
+
+        // 4. CORE GAMEPLAY
+        function loadQuestion(index) {
+            currentQIndex = index;
+            const q = quizData[index];
+            
+            if(questionStatus[index] === 'not-visited') {
+                questionStatus[index] = 'visited';
+            }
+            updatePaletteStyles();
+
+            let html = `<div class="q-header">Question ${index + 1}</div>`;
+            html += `<div class="q-text"><strong>${q.question}</strong><br>${q.body.join('<br>')}</div>`;
+
+            if(q.isMatching && q.matchData.h.length) {
+                html += `<table><thead><tr><th>${q.matchData.h[0]}</th><th>${q.matchData.h[1]}</th></tr></thead><tbody>`;
+                q.matchData.r.forEach(row => html += `<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`);
+                html += `</tbody></table><br>`;
+            }
+
+            html += `<div class="options-grid">`;
+            q.options.forEach(opt => {
+                const isChecked = userAnswers[index] === opt ? 'checked' : '';
+                const isSelectedClass = userAnswers[index] === opt ? 'selected' : '';
+                const isDisabled = isReviewMode ? 'disabled' : '';
+                
+                let extraStyle = '';
+                if(isReviewMode) {
+                    if(opt === q.answer) extraStyle = 'border-color: var(--success); background: #d1fae5;';
+                    else if(userAnswers[index] === opt) extraStyle = 'border-color: var(--danger); background: #fee2e2;';
                 }
-                timeLeft--;
+
+                html += `
+                <label class="option-label ${isSelectedClass}" style="${extraStyle}">
+                    <input type="radio" name="qopt" value="${opt}" ${isChecked} ${isDisabled} onchange="selectOption('${opt}')">
+                    <span>${opt}</span>
+                </label>`;
+            });
+            html += `</div>`;
+
+            if(isReviewMode) {
+                 const correct = userAnswers[index] === q.answer;
+                 const msg = correct ? "Correct Answer!" : `Wrong! Correct answer: ${q.answer}`;
+                 html += `<div style="margin-top:20px; font-weight:bold; padding:10px; background:#f3f4f6; border-radius:6px;">${msg}</div>`;
+            }
+
+            questionContent.innerHTML = html;
+            
+            // Navigation Buttons logic
+            prevBtn.disabled = index === 0;
+
+            if(index === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                // If review mode, don't show submit, show restart button instead
+                if(!isReviewMode) {
+                    submitBtn.classList.remove('hidden');
+                }
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+
+            // HANDLE BUTTON VISIBILITY FOR REVIEW MODE
+            if (isReviewMode) {
+                markReviewBtn.classList.add('hidden');
+                submitBtn.classList.add('hidden');
+                restartFooterBtn.classList.remove('hidden'); // Show restart button on every page in review
+            } else {
+                restartFooterBtn.classList.add('hidden');
+            }
+        }
+
+        window.selectOption = function(val) {
+            userAnswers[currentQIndex] = val;
+            if(questionStatus[currentQIndex] !== 'review') {
+                questionStatus[currentQIndex] = 'answered';
+            }
+            updatePaletteStyles();
+            const labels = document.querySelectorAll('.option-label');
+            labels.forEach(l => l.classList.remove('selected'));
+            event.target.closest('.option-label').classList.add('selected');
+        };
+
+        // 5. SIDEBAR PALETTE
+        function renderPalette() {
+            paletteGrid.innerHTML = '';
+            quizData.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'p-btn';
+                btn.textContent = i + 1;
+                btn.onclick = () => loadQuestion(i);
+                btn.id = `p-btn-${i}`;
+                paletteGrid.appendChild(btn);
+            });
+        }
+
+        function updatePaletteStyles() {
+            quizData.forEach((_, i) => {
+                const btn = document.getElementById(`p-btn-${i}`);
+                btn.className = 'p-btn'; 
+                
+                if(i === currentQIndex) btn.classList.add('current');
+                
+                if(questionStatus[i] === 'answered') btn.classList.add('answered');
+                else if(questionStatus[i] === 'review') btn.classList.add('review');
+                else if(questionStatus[i] === 'visited' && !userAnswers[i]) btn.classList.add('not-answered');
+            });
+        }
+
+        // 6. NAVIGATION & ACTIONS
+        nextBtn.addEventListener('click', () => {
+            if(currentQIndex < quizData.length - 1) loadQuestion(currentQIndex + 1);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if(currentQIndex > 0) loadQuestion(currentQIndex - 1);
+        });
+
+        markReviewBtn.addEventListener('click', () => {
+            questionStatus[currentQIndex] = 'review';
+            updatePaletteStyles();
+            if(currentQIndex < quizData.length - 1) loadQuestion(currentQIndex + 1);
+        });
+
+        // 7. SUBMIT & TIMER
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            let remaining = seconds;
+            updateTimerUI(remaining);
+            
+            timerInterval = setInterval(() => {
+                remaining--;
+                updateTimerUI(remaining);
+                if(remaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz(true);
+                }
             }, 1000);
         }
 
-        function showQuestion(index) {
-            currentQuestionIndex = index;
-            const q = quizData[index];
-            
-            let questionTitle = q.isMatchingQuestion ? q.question : `Q${index + 1}: ${q.question}`;
-            let questionBodyHTML = q.questionBody.join('<br>'); 
-            let questionContent = `<p class="question-title">${questionTitle}</p><div class="question-body">${questionBodyHTML}</div>`;
-            
-            if (q.isMatchingQuestion && q.matchingData.headers.length > 0) {
-                let tableHTML = '<div class="table-wrapper"><table class="matching-table">';
-                tableHTML += `<thead><tr><th>${q.matchingData.headers[0]}</th><th>${q.matchingData.headers[1]}</th></tr></thead>`;
-                tableHTML += '<tbody>';
-                q.matchingData.rows.forEach(row => {
-                    tableHTML += `<tr><td>${row[0]}</td><td>${row[1]}</td></tr>`;
-                });
-                tableHTML += '</tbody></table></div>';
-                questionContent += tableHTML;
-            }
-            
-            document.getElementById('quiz').innerHTML = `
-                <div class="question">
-                    ${questionContent}
-                </div>
-                <div class="options">
-                    ${q.options.map((option) => `
-                        <label>
-                            <input type="radio" name="q${index}" value="${option}" ${userAnswers[index] === option ? 'checked' : ''} ${isReviewMode ? 'disabled' : ''}>
-                            ${option}
-                        </label>
-                    `).join("")}
-                </div>
-                <div id="feedback-${index}" class="feedback hidden"></div>
-            `;
-            
-            updateNavButtons();
-            updateQuestionNavHighlight();
-
-            if (!isReviewMode) {
-                const optionsContainer = document.getElementById('quiz').querySelector('.options');
-                optionsContainer.addEventListener('change', (e) => {
-                    if (e.target.type === 'radio') {
-                        userAnswers[index] = e.target.value;
-                        document.querySelector(`.q-nav-btn[data-index='${index}']`).classList.add('answered');
-                    }
-                });
-            } else {
-                showFeedback(index);
-            }
-        }
-        
-        function updateNavButtons() {
-            prevButton.disabled = currentQuestionIndex === 0;
-            nextButton.disabled = currentQuestionIndex === quizData.length - 1;
-            
-            if (!isReviewMode) {
-                submitButton.classList.toggle("hidden", currentQuestionIndex !== quizData.length - 1);
-            } else {
-                submitButton.classList.add("hidden");
-            }
-
-            if (isReviewMode) {
-                 prevButton.classList.add("hidden");
-                 nextButton.classList.add("hidden");
-                 restartButton.classList.remove("hidden");
-            }
+        function updateTimerUI(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${m}:${s}`;
+            if(sec < 60) timerDisplay.style.color = 'red';
         }
 
-        function renderQuestionNav() {
-            questionNav.innerHTML = '';
-            quizData.forEach((_, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'q-nav-btn';
-                btn.textContent = index + 1;
-                btn.dataset.index = index;
-                btn.addEventListener('click', () => showQuestion(index));
-                questionNav.appendChild(btn);
-            });
-        }
-        
-        function updateQuestionNavHighlight() {
-            document.querySelectorAll('.q-nav-btn').forEach(btn => {
-                const isActive = btn.dataset.index == currentQuestionIndex;
-                btn.style.borderWidth = isActive ? '2px' : '1px';
-                btn.style.borderColor = isActive ? '#007bff' : '#ccc';
-                
-                if (isActive) {
-                    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                }
-            });
-        }
-        
-        function handleSubmit() {
+        submitBtn.addEventListener('click', () => {
+            if(confirm("Are you sure you want to submit the test?")) {
+                finishQuiz();
+            }
+        });
+
+        function finishQuiz(isTimeUp = false) {
             clearInterval(timerInterval);
-            isReviewMode = true;
+            quizInterface.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
             let score = 0;
-
-            quizData.forEach((q, index) => {
-                const navBtn = document.querySelector(`.q-nav-btn[data-index='${index}']`);
-                navBtn.classList.remove('answered');
-                if (userAnswers[index] === q.answer) {
-                    score++;
-                    navBtn.classList.add('correct');
-                } else {
-                    navBtn.classList.add('wrong');
-                }
+            quizData.forEach((q, i) => {
+                if(userAnswers[i] === q.answer) score++;
             });
 
-            scoreContainer.textContent = `Your Score: ${score}/${quizData.length}`;
-            scoreContainer.classList.remove("hidden");
-            
-            submitButton.classList.add("hidden");
-            restartButton.classList.remove("hidden");
-
-            showQuestion(currentQuestionIndex);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('total-questions').textContent = `/ ${quizData.length}`;
+            document.getElementById('result-feedback').textContent = isTimeUp 
+                ? "Time's up! Here is your result." 
+                : "You have successfully submitted the test.";
         }
 
-        restartButton.addEventListener('click', () => {
-            location.reload(); 
-        });
-
-        function showFeedback(index) {
-            const feedbackDiv = document.getElementById('quiz').querySelector(`#feedback-${index}`);
-            if (!feedbackDiv) return;
+        // 8. REVIEW & RESTART
+        reviewAnswersBtn.addEventListener('click', () => {
+            isReviewMode = true;
+            resultScreen.classList.add('hidden');
+            quizInterface.classList.remove('hidden');
             
-            const q = quizData[index];
-            const userAnswer = userAnswers[index];
-            
-            feedbackDiv.classList.remove('hidden');
-            if (userAnswer === q.answer) {
-                feedbackDiv.innerHTML = `Your answer is correct!`;
-                feedbackDiv.className = 'feedback correct';
-            } else {
-                feedbackDiv.innerHTML = `<b>Your Answer:</b> ${userAnswer || "Not Answered"}<br><b>Correct Answer:</b> ${q.answer}`;
-                feedbackDiv.className = 'feedback wrong';
-            }
-        }
-        
-        nextButton.addEventListener('click', () => {
-            if (currentQuestionIndex < quizData.length - 1) {
-                showQuestion(currentQuestionIndex + 1);
-            }
-        });
-        
-        prevButton.addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                showQuestion(currentQuestionIndex - 1);
-            }
+            loadQuestion(0);
         });
 
-        submitButton.addEventListener('click', handleSubmit);
+        // RESTART LOGIC (Reload page)
+        restartBtn.addEventListener('click', () => location.reload());
+        restartFooterBtn.addEventListener('click', () => location.reload());
 
-        function parseQuestions(text) {
-            quizData = [];
-            const questionBlocks = text.split(/(?=^Q\d+[:.]|^Match List-I)/m).filter(block => block.trim() !== "");
-
-            questionBlocks.forEach(block => {
-                const lines = block.trim().split('\n');
-                const firstLine = lines.shift().trim();
-                
-                const isMatching = block.toLowerCase().includes('match list-i');
-                let questionText = firstLine;
-
-                if (!isMatching && firstLine.match(/^Q\d+[:.]/)) {
-                    questionText = firstLine.substring(firstLine.search(/[:.]\s*/) + 1).trim();
-                }
-
-                let currentQuestion = { 
-                    question: questionText,
-                    questionBody: [],
-                    options: [], 
-                    answer: null,
-                    isMatchingQuestion: isMatching,
-                    matchingData: { headers: [], rows: [] }
-                };
-
-                let inQuestionBody = true;
-
-                lines.forEach(line => {
-                    const trimmedLine = line.trim();
-
-                    if (trimmedLine.match(/^\([a-z]\)/) || trimmedLine.toLowerCase().startsWith('options:')) {
-                        inQuestionBody = false;
-                        if (trimmedLine.match(/^\([a-z]\)/)) {
-                           currentQuestion.options.push(trimmedLine);
-                        }
-                    } else if (trimmedLine.match(/^(A:|Answer:)/i)) {
-                        inQuestionBody = false;
-                        let answerText = trimmedLine.split(':').slice(1).join(':').trim();
-                        const optionMatch = answerText.match(/^Option (\d+)/i);
-                        if (optionMatch && currentQuestion.options.length > 0) {
-                            const optionIndex = parseInt(optionMatch[1], 10) - 1;
-                            if (optionIndex >= 0 && optionIndex < currentQuestion.options.length) {
-                                currentQuestion.answer = currentQuestion.options[optionIndex];
-                            } else {
-                                currentQuestion.answer = answerText;
-                            }
-                        } else {
-                            currentQuestion.answer = answerText;
-                        }
-                    } else if (inQuestionBody) {
-                        if (isMatching) {
-                            const parts = trimmedLine.split(/\s{2,}/);
-                            if (parts.length >= 2) {
-                                if (trimmedLine.toLowerCase().startsWith('list-i')) {
-                                    currentQuestion.matchingData.headers = parts;
-                                } else if (trimmedLine.match(/^[A-Z]\./)) {
-                                    currentQuestion.matchingData.rows.push([parts[0], parts.slice(1).join(' ')]);
-                                } else {
-                                    currentQuestion.questionBody.push(trimmedLine);
-                                }
-                            } else {
-                               currentQuestion.questionBody.push(trimmedLine);
-                            }
-                        } else {
-                            currentQuestion.questionBody.push(trimmedLine);
-                        }
-                    } else { 
-                        if (trimmedLine.match(/^\([a-z]\)/)) {
-                           currentQuestion.options.push(trimmedLine);
-                        }
-                    }
-                });
-                quizData.push(currentQuestion);
-            });
-        }
     </script>
 </body>
 </html>
