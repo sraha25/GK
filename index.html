@@ -170,6 +170,34 @@
         .hidden {
             display: none !important; 
         }
+        
+        /* --- NEW STYLES FOR DRIVE BUTTON --- */
+        .drive-btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #ea4335; /* Google Drive Red-ish color */
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .drive-btn:hover {
+            background-color: #d32f2f;
+        }
+        #upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .file-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        /* ----------------------------------- */
 
         /* =========================================
            MOBILE RESPONSIVE DESIGN
@@ -289,7 +317,12 @@
     <div class="header-controls">
          <div id="upload-container">
              <h1>Quiz</h1>
-             <input type="file" id="upload" accept=".txt">
+             <div class="file-input-group">
+                 <a href="https://drive.google.com/drive/u/0/folders/1pBDT_icBPmHLNbBwmQCWgWPyhie4IiU_" target="_blank" class="drive-btn">
+                    📂 Open Google Drive Folder
+                 </a>
+                 <input type="file" id="upload" accept=".txt">
+             </div>
          </div>
          <div id="score" class="hidden"></div>
     </div>
@@ -321,7 +354,7 @@
         const nextButton = document.getElementById("next");
         const prevButton = document.getElementById("prev");
         const submitButton = document.getElementById("submit");
-        const restartButton = document.getElementById("restart"); // Select new button
+        const restartButton = document.getElementById("restart"); 
         const questionNav = document.getElementById("question-nav");
         const timerDisplay = document.getElementById("time-left");
         const startTimerButton = document.getElementById("start-timer");
@@ -361,7 +394,7 @@
             uploadContainer.classList.add("hidden");
             scoreContainer.classList.add("hidden");
             submitButton.classList.add("hidden");
-            restartButton.classList.add("hidden"); // Ensure restart is hidden initially
+            restartButton.classList.add("hidden"); 
             
             renderQuestionNav();
             showQuestion(currentQuestionIndex);
@@ -437,7 +470,6 @@
             prevButton.disabled = currentQuestionIndex === 0;
             nextButton.disabled = currentQuestionIndex === quizData.length - 1;
             
-            // Only show submit if we are NOT in review mode and on the last question
             if (!isReviewMode) {
                 submitButton.classList.toggle("hidden", currentQuestionIndex !== quizData.length - 1);
             } else {
@@ -447,7 +479,6 @@
             if (isReviewMode) {
                  prevButton.classList.add("hidden");
                  nextButton.classList.add("hidden");
-                 // Ensure restart button is visible in review mode
                  restartButton.classList.remove("hidden");
             }
         }
@@ -495,16 +526,14 @@
             scoreContainer.textContent = `Your Score: ${score}/${quizData.length}`;
             scoreContainer.classList.remove("hidden");
             
-            // Hide submit button and Show Restart button
             submitButton.classList.add("hidden");
             restartButton.classList.remove("hidden");
 
             showQuestion(currentQuestionIndex);
         }
 
-        // RESTART BUTTON LOGIC
         restartButton.addEventListener('click', () => {
-            location.reload(); // Refreshes the page
+            location.reload(); 
         });
 
         function showFeedback(index) {
