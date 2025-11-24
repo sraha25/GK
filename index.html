@@ -6,6 +6,7 @@
     <title>Quiz Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
         :root {
@@ -49,7 +50,7 @@
             justify-content: center;
         }
         
-        /* === NEW START SCREEN STYLES (MATCHING IMAGE) === */
+        /* === START SCREEN STYLES === */
         #start-screen {
             height: 100%;
             display: flex;
@@ -66,7 +67,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px; /* Matches the compact card look */
+            max-width: 400px;
             text-align: center;
         }
 
@@ -97,10 +98,9 @@
             text-align: center;
         }
 
-        /* Step 1: Blue Style */
         .step-1 {
             background-color: var(--primary-light);
-            border-color: #bfdbfe; /* Light blue border */
+            border-color: #bfdbfe;
             display: block;
             text-decoration: none;
             color: var(--primary);
@@ -108,14 +108,11 @@
             font-size: 1rem;
             transition: background 0.2s;
         }
-        .step-1:hover {
-            background-color: #dbeafe;
-        }
+        .step-1:hover { background-color: #dbeafe; }
 
-        /* Step 2: White Style */
         .step-2 {
             background-color: white;
-            border-color: #d1d5db; /* Grey dashed */
+            border-color: #d1d5db;
         }
         
         .step-label {
@@ -126,11 +123,7 @@
             font-size: 1rem;
         }
 
-        /* Custom File Input Styling */
-        input[type="file"] {
-            font-size: 0.9rem;
-            width: 100%;
-        }
+        input[type="file"] { font-size: 0.9rem; width: 100%; }
         input[type="file"]::file-selector-button {
             border: 1px solid #ccc;
             padding: 5px 10px;
@@ -140,7 +133,6 @@
             margin-right: 10px;
         }
 
-        /* Duration Input */
         .duration-wrapper {
             display: flex;
             align-items: center;
@@ -159,7 +151,6 @@
             font-size: 1rem;
         }
 
-        /* Big Start Button */
         .btn-start-exam {
             width: 100%;
             background-color: var(--primary);
@@ -175,10 +166,8 @@
         .btn-start-exam:hover { background-color: var(--primary-dark); }
         .btn-start-exam:disabled { background-color: #93c5fd; cursor: not-allowed; }
 
-        /* === END START SCREEN STYLES === */
 
-
-        /* QUIZ INTERFACE */
+        /* === QUIZ INTERFACE === */
         #quiz-interface {
             height: 100%;
             display: flex;
@@ -337,42 +326,33 @@
             max-width: 500px;
             margin: auto;
         }
-        .score-circle {
-            width: 130px;
-            height: 130px;
+        
+        /* === MODIFIED: SCORE BOX === */
+        .score-box {
+            width: 150px;
+            height: 150px;
             background: var(--primary);
             color: white;
-            border-radius: 50%;
+            border-radius: 16px; /* SQUARE WITH ROUNDED CORNERS */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             margin: 0 auto 20px auto;
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
         }
-        .score-big { font-size: 2.2rem; font-weight: 700; }
+        
+        .score-big { font-size: 1.8rem; font-weight: 700; }
         .score-label { font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; }
         
         .chart-container {
             position: relative;
-            height: 200px;
+            height: 250px; 
             width: 100%;
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
         }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        .stat-box { padding: 10px; background: #f9fafb; border-radius: 8px; }
-        .stat-val { font-weight: 700; font-size: 1.2rem; }
-        .stat-lbl { font-size: 0.75rem; color: var(--text-light); }
-        .text-green { color: var(--success); }
-        .text-red { color: var(--danger); }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
@@ -475,7 +455,8 @@
 
     <div id="result-screen" class="hidden">
         <div class="score-card">
-            <div class="score-circle">
+            
+            <div class="score-box">
                 <div class="score-big" id="final-score">0.00</div>
                 <div class="score-label">Score</div>
             </div>
@@ -484,22 +465,7 @@
                 <canvas id="resultChart"></canvas>
             </div>
             
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-val text-green" id="res-correct">0</div>
-                    <div class="stat-lbl">Correct (+1)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val text-red" id="res-wrong">0</div>
-                    <div class="stat-lbl">Wrong (-0.25)</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="res-skipped">0</div>
-                    <div class="stat-lbl">Skipped (0)</div>
-                </div>
-            </div>
-
-            <h2 id="result-msg">Test Submitted!</h2>
+            <h2 id="result-msg" style="margin-top:0;">Test Submitted!</h2>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                 <button id="review-answers-btn" class="btn btn-outline">Review Answers</button>
                 <button id="restart-btn" class="btn btn-primary-nav">Take Another Test</button>
@@ -538,7 +504,7 @@
         // 1. FILE UPLOAD & START ENABLE
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
-                startBtn.disabled = false; // Enable button when file is selected
+                startBtn.disabled = false;
             } else {
                 startBtn.disabled = true;
             }
@@ -809,13 +775,10 @@
                 }
             });
 
-            document.getElementById('final-score').textContent = score.toFixed(2); 
-            document.getElementById('res-correct').textContent = correctCount;
-            document.getElementById('res-wrong').textContent = wrongCount;
-            document.getElementById('res-skipped').textContent = skippedCount;
+            document.getElementById('final-score').textContent = `${score.toFixed(2)} / ${quizData.length}`;
             document.getElementById('result-msg').textContent = isTimeUp ? "Time's up!" : "Test Submitted!";
 
-            // Chart
+            // Chart Logic
             const ctx = document.getElementById('resultChart').getContext('2d');
             if (myChart) myChart.destroy();
 
@@ -829,10 +792,25 @@
                         borderWidth: 1
                     }]
                 },
+                plugins: [ChartDataLabels],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: { 
+                        legend: { position: 'bottom' },
+                        datalabels: {
+                            color: (context) => {
+                                return context.dataIndex === 2 ? '#374151' : '#fff';
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 16
+                            },
+                            formatter: (value) => {
+                                return value > 0 ? value : '';
+                            }
+                        }
+                    }
                 }
             });
         }
