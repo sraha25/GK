@@ -6,12 +6,11 @@
     <title>Quiz Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
     <style>
         :root {
-            --primary: #2563eb;       /* Blue */
-            --primary-light: #eef2ff; /* Light Blue Background */
+            --primary: #2563eb;       
+            --primary-light: #eef2ff; 
             --primary-dark: #1d4ed8;
             --success: #10b981;
             --danger: #ef4444;
@@ -22,6 +21,22 @@
             --text-light: #6b7280;
             --white: #ffffff;
             --border: #e5e7eb;
+            --card-bg: #ffffff;
+            --option-hover: #f9fafb;
+            --option-selected: #eff6ff;
+        }
+
+        /* NIGHT MODE OVERRIDES */
+        body.dark-mode {
+            --bg-gray: #111827;
+            --text-dark: #f3f4f6;
+            --text-light: #9ca3af;
+            --white: #1f2937;
+            --border: #374151;
+            --card-bg: #1f2937;
+            --primary-light: #1e3a8a; 
+            --option-hover: #374151;
+            --option-selected: #1e3a8a;
         }
 
         * { box-sizing: border-box; }
@@ -34,6 +49,7 @@
             height: 100vh; 
             height: 100dvh;
             overflow: hidden;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* UTILITY */
@@ -50,6 +66,33 @@
             justify-content: center;
         }
         
+        /* === NIGHT MODE BUTTON STYLES === */
+        .night-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .night-toggle:hover {
+            background: var(--border);
+        }
+        
+        /* Button position for Start Screen (Top Right) */
+        .toggle-start {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
         /* === START SCREEN STYLES === */
         #start-screen {
             height: 100%;
@@ -59,16 +102,18 @@
             padding: 20px;
             background-color: var(--bg-gray);
             overflow-y: auto;
+            position: relative;
         }
 
         .start-card {
-            background: white;
+            background: var(--card-bg);
             padding: 40px 30px;
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
+            border: 1px solid var(--border);
         }
 
         .brand-title {
@@ -89,7 +134,6 @@
             line-height: 1.5;
         }
 
-        /* Step Boxes */
         .step-box {
             border: 1.5px dashed;
             border-radius: 12px;
@@ -109,10 +153,11 @@
             transition: background 0.2s;
         }
         .step-1:hover { background-color: #dbeafe; }
+        body.dark-mode .step-1 { border-color: var(--primary); color: #60a5fa; }
 
         .step-2 {
-            background-color: white;
-            border-color: #d1d5db;
+            background-color: var(--card-bg);
+            border-color: var(--border);
         }
         
         .step-label {
@@ -123,12 +168,17 @@
             font-size: 1rem;
         }
 
-        input[type="file"] { font-size: 0.9rem; width: 100%; }
+        input[type="file"] {
+            font-size: 0.9rem;
+            width: 100%;
+            color: var(--text-dark);
+        }
         input[type="file"]::file-selector-button {
-            border: 1px solid #ccc;
+            border: 1px solid var(--border);
             padding: 5px 10px;
             border-radius: 4px;
-            background-color: #f9fafb;
+            background-color: var(--bg-gray);
+            color: var(--text-dark);
             cursor: pointer;
             margin-right: 10px;
         }
@@ -146,7 +196,9 @@
             width: 80px;
             padding: 8px;
             text-align: center;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-dark);
             border-radius: 6px;
             font-size: 1rem;
         }
@@ -167,7 +219,7 @@
         .btn-start-exam:disabled { background-color: #93c5fd; cursor: not-allowed; }
 
 
-        /* === QUIZ INTERFACE === */
+        /* QUIZ INTERFACE */
         #quiz-interface {
             height: 100%;
             display: flex;
@@ -176,7 +228,7 @@
 
         header {
             height: 60px;
-            background: white;
+            background: var(--card-bg);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
@@ -184,7 +236,15 @@
             padding: 0 20px;
             flex-shrink: 0;
         }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Spacing between Toggle and Timer */
+        }
+
         .brand { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        
         .timer-badge {
             background: #fee2e2;
             color: #991b1b;
@@ -193,6 +253,8 @@
             font-weight: 600;
             font-family: monospace;
             font-size: 1.1rem;
+            min-width: 70px;
+            text-align: center;
         }
 
         .exam-container {
@@ -206,7 +268,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: white;
+            background: var(--card-bg);
             padding: 0;
             overflow: hidden;
         }
@@ -224,7 +286,7 @@
             border-bottom: 1px solid var(--border);
             padding-bottom: 15px;
         }
-        .q-text { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; }
+        .q-text { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; color: var(--text-dark); }
         
         .options-grid { display: flex; flex-direction: column; gap: 12px; }
         .option-label {
@@ -235,11 +297,12 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            color: var(--text-dark);
         }
-        .option-label:hover { background: #f9fafb; border-color: var(--primary); }
+        .option-label:hover { background: var(--option-hover); border-color: var(--primary); }
         .option-label input { margin-top: 4px; margin-right: 12px; }
         .option-label.selected {
-            background: #eff6ff;
+            background: var(--option-selected);
             border-color: var(--primary);
             box-shadow: 0 0 0 1px var(--primary);
         }
@@ -247,7 +310,7 @@
         .q-footer {
             height: 70px;
             border-top: 1px solid var(--border);
-            background: white;
+            background: var(--card-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -256,12 +319,8 @@
             z-index: 10;
         }
         
-        .footer-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-dark); }
+        .footer-group { display: flex; gap: 10px; }
+        .btn-outline { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-dark); }
         .btn-review { background: var(--review); color: white; }
         .btn-primary-nav { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
@@ -269,14 +328,20 @@
 
         .sidebar {
             width: 320px;
-            background: white;
+            background: var(--card-bg);
             border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
         }
-        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 600; background: #f9fafb; }
-        .legend { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; border-bottom: 1px solid var(--border); }
+        .sidebar-header { 
+            padding: 15px; 
+            border-bottom: 1px solid var(--border); 
+            font-weight: 600; 
+            background: var(--bg-gray); 
+            color: var(--text-dark);
+        }
+        .legend { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; border-bottom: 1px solid var(--border); color: var(--text-dark); }
         .legend-item { display: flex; align-items: center; gap: 5px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; }
         
@@ -293,7 +358,7 @@
         .p-btn {
             aspect-ratio: 1;
             border: 1px solid var(--border);
-            background: white;
+            background: var(--card-bg);
             border-radius: 4px;
             font-weight: 600;
             cursor: pointer;
@@ -304,6 +369,10 @@
         .p-btn.not-answered { background: var(--danger); color: white; border: none; }
         .p-btn.review { background: var(--review); color: white; border: none; }
         .p-btn.current { border: 2px solid var(--primary); box-shadow: 0 0 5px rgba(37, 99, 235, 0.3); }
+
+        /* WRONG ANSWER STYLE FOR REVIEW MODE */
+        .p-btn.wrong-ans { background: var(--danger) !important; color: white !important; border: none; }
+        .p-btn.correct-ans { background: var(--success) !important; color: white !important; border: none; }
 
         /* RESULT SCREEN */
         #result-screen {
@@ -317,7 +386,7 @@
             padding: 20px 0;
         }
         .score-card {
-            background: white;
+            background: var(--card-bg);
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -325,43 +394,53 @@
             width: 90%;
             max-width: 500px;
             margin: auto;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
         }
-        
-        /* === MODIFIED: SCORE BOX === */
-        .score-box {
-            width: 150px;
-            height: 150px;
+        .score-circle {
+            width: 130px;
+            height: 130px;
             background: var(--primary);
             color: white;
-            border-radius: 16px; /* SQUARE WITH ROUNDED CORNERS */
+            border-radius: 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             margin: 0 auto 20px auto;
-            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
         }
-        
-        .score-big { font-size: 1.8rem; font-weight: 700; }
+        .score-big { font-size: 2.2rem; font-weight: 700; }
         .score-label { font-size: 0.8rem; text-transform: uppercase; margin-top: 5px; }
         
         .chart-container {
             position: relative;
-            height: 250px; 
+            height: 200px;
             width: 100%;
             display: flex;
             justify-content: center;
             margin-bottom: 20px;
         }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .stat-box { padding: 10px; background: var(--bg-gray); border-radius: 8px; border: 1px solid var(--border); }
+        .stat-val { font-weight: 700; font-size: 1.2rem; color: var(--text-dark); }
+        .stat-lbl { font-size: 0.75rem; color: var(--text-light); }
+        .text-green { color: var(--success); }
+        .text-red { color: var(--danger); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; color: var(--text-dark); }
         th, td { border: 1px solid var(--border); padding: 8px; text-align: left; }
-        th { background: #f9fafb; }
+        th { background: var(--bg-gray); }
 
-        /* RESPONSIVE MOBILE OPTIMIZATIONS */
+        /* RESPONSIVE */
         @media (max-width: 768px) {
             .exam-container { flex-direction: column; }
-            
             .sidebar { 
                 width: 100%; 
                 height: auto; 
@@ -385,12 +464,19 @@
             }
             .footer-group { gap: 5px; flex: 1; justify-content: center; }
             .q-footer .btn { flex: 1; padding: 0 5px; font-size: 0.75rem; height: 40px; white-space: nowrap; }
+            
+            /* Hide Text of toggle on mobile to save space */
+            .night-toggle span { display: none; }
         }
     </style>
 </head>
 <body>
 
     <div id="start-screen">
+        <button class="night-toggle toggle-start" onclick="toggleNightMode()">
+            🌙 <span>Night Mode</span>
+        </button>
+
         <div class="start-card">
             <div class="brand-title">🎓 Quiz</div>
             <div class="subtitle">Upload your question file to begin the computer-based test.</div>
@@ -420,7 +506,12 @@
     <div id="quiz-interface" class="hidden">
         <header>
             <div class="brand">GK Test Series</div>
-            <div class="timer-badge" id="time-left">00:00</div>
+            <div class="header-right">
+                <button class="night-toggle" onclick="toggleNightMode()">
+                    🌙 <span>Night Mode</span>
+                </button>
+                <div class="timer-badge" id="time-left">00:00</div>
+            </div>
         </header>
 
         <div class="exam-container">
@@ -455,8 +546,7 @@
 
     <div id="result-screen" class="hidden">
         <div class="score-card">
-            
-            <div class="score-box">
+            <div class="score-circle">
                 <div class="score-big" id="final-score">0.00</div>
                 <div class="score-label">Score</div>
             </div>
@@ -465,7 +555,22 @@
                 <canvas id="resultChart"></canvas>
             </div>
             
-            <h2 id="result-msg" style="margin-top:0;">Test Submitted!</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val text-green" id="res-correct">0</div>
+                    <div class="stat-lbl">Correct (+1)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val text-red" id="res-wrong">0</div>
+                    <div class="stat-lbl">Wrong (-0.25)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="res-skipped">0</div>
+                    <div class="stat-lbl">Skipped (0)</div>
+                </div>
+            </div>
+
+            <h2 id="result-msg">Test Submitted!</h2>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
                 <button id="review-answers-btn" class="btn btn-outline">Review Answers</button>
                 <button id="restart-btn" class="btn btn-primary-nav">Take Another Test</button>
@@ -482,6 +587,7 @@
         let timerInterval;
         let isReviewMode = false;
         let myChart = null; 
+        let isDarkMode = false;
 
         // DOM ELEMENTS
         const fileInput = document.getElementById('upload');
@@ -500,6 +606,28 @@
         const reviewAnswersBtn = document.getElementById('review-answers-btn');
         const restartBtn = document.getElementById('restart-btn');
         const restartFooterBtn = document.getElementById('restart-footer-btn');
+
+        // NIGHT MODE LOGIC (UPDATED TO HANDLE MULTIPLE BUTTONS)
+        function toggleNightMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            
+            // Update all toggle buttons on the page
+            const btns = document.querySelectorAll('.night-toggle');
+            btns.forEach(btn => {
+                const textSpan = btn.querySelector('span');
+                const icon = isDarkMode ? "☀️" : "🌙";
+                const text = isDarkMode ? "Light Mode" : "Night Mode";
+                
+                // If button has a span, update span text, otherwise update entire content
+                if (textSpan) {
+                    btn.childNodes[0].nodeValue = icon + " "; // Update icon text node
+                    textSpan.textContent = text;
+                } else {
+                    btn.textContent = icon + " " + text;
+                }
+            });
+        }
 
         // 1. FILE UPLOAD & START ENABLE
         fileInput.addEventListener('change', function() {
@@ -636,8 +764,8 @@
                 
                 let extraStyle = '';
                 if(isReviewMode) {
-                    if(opt === q.answer) extraStyle = 'border-color: var(--success); background: #d1fae5;';
-                    else if(userAnswers[index] === opt) extraStyle = 'border-color: var(--danger); background: #fee2e2;';
+                    if(opt === q.answer) extraStyle = 'border-color: var(--success); background: rgba(16, 185, 129, 0.1);';
+                    else if(userAnswers[index] === opt) extraStyle = 'border-color: var(--danger); background: rgba(239, 68, 68, 0.1);';
                 }
 
                 html += `
@@ -651,8 +779,8 @@
             if(isReviewMode) {
                  const correct = userAnswers[index] === q.answer;
                  const msg = correct ? "✅ Correct (+1)" : (userAnswers[index] ? `❌ Wrong (-0.25). Correct: ${q.answer}` : `⚪ Skipped. Correct: ${q.answer}`);
-                 const color = correct ? "green" : "red";
-                 html += `<div style="margin-top:20px; font-weight:bold; padding:10px; background:white; border:1px solid #ddd; border-left: 5px solid ${color}; border-radius:4px;">${msg}</div>`;
+                 const color = correct ? "#10b981" : "#ef4444";
+                 html += `<div style="margin-top:20px; font-weight:bold; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-left: 5px solid ${color}; border-radius:4px; color:var(--text-dark)">${msg}</div>`;
             }
 
             questionContent.innerHTML = html;
@@ -702,13 +830,26 @@
             quizData.forEach((_, i) => {
                 const btn = document.getElementById(`p-btn-${i}`);
                 btn.className = 'p-btn'; 
+                
+                // Normal Mode Styling
+                if(questionStatus[i] === 'answered') btn.classList.add('answered');
+                else if(questionStatus[i] === 'review') btn.classList.add('review');
+                else if(questionStatus[i] === 'visited' && !userAnswers[i]) btn.classList.add('not-answered');
+
+                // Review Mode Specific Overrides (Red for Wrong)
+                if(isReviewMode && userAnswers[i]) {
+                    if(userAnswers[i] !== quizData[i].answer) {
+                        btn.classList.remove('answered'); // Remove green
+                        btn.classList.add('wrong-ans');   // Add red
+                    } else {
+                        btn.classList.add('correct-ans'); // Ensure green
+                    }
+                }
+
                 if(i === currentQIndex) {
                     btn.classList.add('current');
                     btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 }
-                if(questionStatus[i] === 'answered') btn.classList.add('answered');
-                else if(questionStatus[i] === 'review') btn.classList.add('review');
-                else if(questionStatus[i] === 'visited' && !userAnswers[i]) btn.classList.add('not-answered');
             });
         }
 
@@ -775,10 +916,13 @@
                 }
             });
 
-            document.getElementById('final-score').textContent = `${score.toFixed(2)} / ${quizData.length}`;
+            document.getElementById('final-score').textContent = score.toFixed(2); 
+            document.getElementById('res-correct').textContent = correctCount;
+            document.getElementById('res-wrong').textContent = wrongCount;
+            document.getElementById('res-skipped').textContent = skippedCount;
             document.getElementById('result-msg').textContent = isTimeUp ? "Time's up!" : "Test Submitted!";
 
-            // Chart Logic
+            // Chart
             const ctx = document.getElementById('resultChart').getContext('2d');
             if (myChart) myChart.destroy();
 
@@ -792,24 +936,14 @@
                         borderWidth: 1
                     }]
                 },
-                plugins: [ChartDataLabels],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { 
-                        legend: { position: 'bottom' },
-                        datalabels: {
-                            color: (context) => {
-                                return context.dataIndex === 2 ? '#374151' : '#fff';
-                            },
-                            font: {
-                                weight: 'bold',
-                                size: 16
-                            },
-                            formatter: (value) => {
-                                return value > 0 ? value : '';
-                            }
-                        }
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: isDarkMode ? '#9ca3af' : '#666' } 
+                        } 
                     }
                 }
             });
