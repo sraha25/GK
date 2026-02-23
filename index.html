@@ -240,7 +240,7 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 12px; /* Spacing between Toggle and Timer */
+            gap: 12px;
         }
 
         .brand { font-weight: 700; font-size: 1.2rem; color: var(--primary); }
@@ -370,7 +370,6 @@
         .p-btn.review { background: var(--review); color: white; border: none; }
         .p-btn.current { border: 2px solid var(--primary); box-shadow: 0 0 5px rgba(37, 99, 235, 0.3); }
 
-        /* WRONG ANSWER STYLE FOR REVIEW MODE */
         .p-btn.wrong-ans { background: var(--danger) !important; color: white !important; border: none; }
         .p-btn.correct-ans { background: var(--success) !important; color: white !important; border: none; }
 
@@ -465,7 +464,6 @@
             .footer-group { gap: 5px; flex: 1; justify-content: center; }
             .q-footer .btn { flex: 1; padding: 0 5px; font-size: 0.75rem; height: 40px; white-space: nowrap; }
             
-            /* Hide Text of toggle on mobile to save space */
             .night-toggle span { display: none; }
         }
     </style>
@@ -579,7 +577,6 @@
     </div>
 
     <script>
-        // STATE
         let quizData = [];
         let currentQIndex = 0;
         let userAnswers = []; 
@@ -589,7 +586,6 @@
         let myChart = null; 
         let isDarkMode = false;
 
-        // DOM ELEMENTS
         const fileInput = document.getElementById('upload');
         const startBtn = document.getElementById('start-btn');
         const startScreen = document.getElementById('start-screen');
@@ -607,21 +603,16 @@
         const restartBtn = document.getElementById('restart-btn');
         const restartFooterBtn = document.getElementById('restart-footer-btn');
 
-        // NIGHT MODE LOGIC (UPDATED TO HANDLE MULTIPLE BUTTONS)
         function toggleNightMode() {
             isDarkMode = !isDarkMode;
             document.body.classList.toggle('dark-mode', isDarkMode);
-            
-            // Update all toggle buttons on the page
             const btns = document.querySelectorAll('.night-toggle');
             btns.forEach(btn => {
                 const textSpan = btn.querySelector('span');
                 const icon = isDarkMode ? "☀️" : "🌙";
                 const text = isDarkMode ? "Light Mode" : "Night Mode";
-                
-                // If button has a span, update span text, otherwise update entire content
                 if (textSpan) {
-                    btn.childNodes[0].nodeValue = icon + " "; // Update icon text node
+                    btn.childNodes[0].nodeValue = icon + " "; 
                     textSpan.textContent = text;
                 } else {
                     btn.textContent = icon + " " + text;
@@ -629,16 +620,10 @@
             });
         }
 
-        // 1. FILE UPLOAD & START ENABLE
         fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                startBtn.disabled = false;
-            } else {
-                startBtn.disabled = true;
-            }
+            startBtn.disabled = this.files.length === 0;
         });
 
-        // 2. START EXAM
         startBtn.addEventListener('click', () => {
             const file = fileInput.files[0];
             if (!file) return;
@@ -676,18 +661,24 @@
                     body: [], 
                     options: [], 
                     answer: null,
+                    description: [],
                     isMatching: isMatching,
                     matchData: { h: [], r: [] }
                 };
 
-                let inBody = true;
+                let currentSection = 'body'; 
+
                 lines.forEach(line => {
                     const tLine = line.trim();
-                    if (tLine.match(/^\([a-z]\)/) || tLine.toLowerCase().startsWith('options:')) {
-                        inBody = false;
-                        if(tLine.match(/^\([a-z]\)/)) qObj.options.push(tLine);
+                    if (!tLine) return;
+
+                    if (tLine.match(/^\([a-z]\)/)) {
+                        currentSection = 'options';
+                        qObj.options.push(tLine);
+                    } else if (tLine.toLowerCase().startsWith('options:')) {
+                        currentSection = 'options';
                     } else if (tLine.match(/^(A:|Answer:)/i)) {
-                        inBody = false;
+                        currentSection = 'answer';
                         let ans = tLine.split(':').slice(1).join(':').trim();
                         const optMatch = ans.match(/^Option (\d+)/i);
                         if(optMatch && qObj.options.length) {
@@ -695,26 +686,31 @@
                         } else {
                             qObj.answer = ans;
                         }
-                    } else if (inBody) {
-                        if(isMatching) {
-                            const parts = tLine.split(/\s{2,}/);
-                            if(parts.length >= 2) {
-                                if(tLine.toLowerCase().startsWith('list-i')) qObj.matchData.h = parts;
-                                else if(tLine.match(/^[A-Z]\./)) qObj.matchData.r.push([parts[0], parts.slice(1).join(' ')]);
-                                else qObj.body.push(tLine);
-                            } else qObj.body.push(tLine);
-                        } else {
-                            qObj.body.push(tLine);
-                        }
+                    } else if (tLine.toLowerCase().startsWith('description:')) {
+                        currentSection = 'description';
+                        const val = tLine.split(':').slice(1).join(':').trim();
+                        if (val) qObj.description.push(val);
                     } else {
-                        if(tLine.match(/^\([a-z]\)/)) qObj.options.push(tLine);
+                        if (currentSection === 'body') {
+                            if(isMatching) {
+                                const parts = tLine.split(/\s{2,}/);
+                                if(parts.length >= 2) {
+                                    if(tLine.toLowerCase().startsWith('list-i')) qObj.matchData.h = parts;
+                                    else if(tLine.match(/^[A-Z]\./)) qObj.matchData.r.push([parts[0], parts.slice(1).join(' ')]);
+                                    else qObj.body.push(tLine);
+                                } else qObj.body.push(tLine);
+                            } else qObj.body.push(tLine);
+                        } else if (currentSection === 'description') {
+                            qObj.description.push(tLine);
+                        } else if (currentSection === 'options') {
+                            if (tLine.match(/^\([a-z]\)/)) qObj.options.push(tLine);
+                        }
                     }
                 });
                 quizData.push(qObj);
             });
         }
 
-        // 3. INITIALIZATION
         function initializeQuiz() {
             currentQIndex = 0;
             userAnswers = new Array(quizData.length).fill(null);
@@ -737,7 +733,6 @@
             startTimer(min * 60);
         }
 
-        // 4. GAMEPLAY
         function loadQuestion(index) {
             currentQIndex = index;
             const q = quizData[index];
@@ -779,8 +774,16 @@
             if(isReviewMode) {
                  const correct = userAnswers[index] === q.answer;
                  const msg = correct ? "✅ Correct (+1)" : (userAnswers[index] ? `❌ Wrong (-0.25). Correct: ${q.answer}` : `⚪ Skipped. Correct: ${q.answer}`);
-                 const color = correct ? "#10b981" : "#ef4444";
+                 const color = correct ? "var(--success)" : "var(--danger)";
                  html += `<div style="margin-top:20px; font-weight:bold; padding:10px; background:var(--card-bg); border:1px solid var(--border); border-left: 5px solid ${color}; border-radius:4px; color:var(--text-dark)">${msg}</div>`;
+                 
+                 if (q.description && q.description.length > 0) {
+                     html += `
+                     <div style="margin-top:15px; padding:15px; background:var(--primary-light); border-radius:8px; border:1px solid var(--primary); color:var(--text-dark);">
+                        <div style="font-weight:700; margin-bottom:8px; color:var(--primary); text-transform:uppercase; font-size:0.85rem;">Explanation:</div>
+                        <div style="line-height:1.6; font-size:0.95rem;">${q.description.join('<br>')}</div>
+                     </div>`;
+                 }
             }
 
             questionContent.innerHTML = html;
@@ -830,22 +833,17 @@
             quizData.forEach((_, i) => {
                 const btn = document.getElementById(`p-btn-${i}`);
                 btn.className = 'p-btn'; 
-                
-                // Normal Mode Styling
                 if(questionStatus[i] === 'answered') btn.classList.add('answered');
                 else if(questionStatus[i] === 'review') btn.classList.add('review');
                 else if(questionStatus[i] === 'visited' && !userAnswers[i]) btn.classList.add('not-answered');
-
-                // Review Mode Specific Overrides (Red for Wrong)
                 if(isReviewMode && userAnswers[i]) {
                     if(userAnswers[i] !== quizData[i].answer) {
-                        btn.classList.remove('answered'); // Remove green
-                        btn.classList.add('wrong-ans');   // Add red
+                        btn.classList.remove('answered');
+                        btn.classList.add('wrong-ans');
                     } else {
-                        btn.classList.add('correct-ans'); // Ensure green
+                        btn.classList.add('correct-ans');
                     }
                 }
-
                 if(i === currentQIndex) {
                     btn.classList.add('current');
                     btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -853,7 +851,6 @@
             });
         }
 
-        // 5. NAVIGATION
         nextBtn.addEventListener('click', () => {
             if(currentQIndex < quizData.length - 1) loadQuestion(currentQIndex + 1);
         });
@@ -866,7 +863,6 @@
             if(currentQIndex < quizData.length - 1) loadQuestion(currentQIndex + 1);
         });
 
-        // 6. TIMER & SUBMIT
         function startTimer(seconds) {
             clearInterval(timerInterval);
             let remaining = seconds;
@@ -896,36 +892,20 @@
             clearInterval(timerInterval);
             quizInterface.classList.add('hidden');
             resultScreen.classList.remove('hidden');
-
-            let score = 0;
-            let correctCount = 0;
-            let wrongCount = 0;
-            let skippedCount = 0;
-
+            let score = 0, correctCount = 0, wrongCount = 0, skippedCount = 0;
             quizData.forEach((q, i) => {
                 if (userAnswers[i]) {
-                    if(userAnswers[i] === q.answer) {
-                        score += 1;
-                        correctCount++;
-                    } else {
-                        score -= 0.25;
-                        wrongCount++;
-                    }
-                } else {
-                    skippedCount++;
-                }
+                    if(userAnswers[i] === q.answer) { score += 1; correctCount++; }
+                    else { score -= 0.25; wrongCount++; }
+                } else { skippedCount++; }
             });
-
             document.getElementById('final-score').textContent = score.toFixed(2); 
             document.getElementById('res-correct').textContent = correctCount;
             document.getElementById('res-wrong').textContent = wrongCount;
             document.getElementById('res-skipped').textContent = skippedCount;
             document.getElementById('result-msg').textContent = isTimeUp ? "Time's up!" : "Test Submitted!";
-
-            // Chart
             const ctx = document.getElementById('resultChart').getContext('2d');
             if (myChart) myChart.destroy();
-
             myChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -937,19 +917,12 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { 
-                            position: 'bottom',
-                            labels: { color: isDarkMode ? '#9ca3af' : '#666' } 
-                        } 
-                    }
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: isDarkMode ? '#9ca3af' : '#666' } } }
                 }
             });
         }
 
-        // 7. ACTIONS
         reviewAnswersBtn.addEventListener('click', () => {
             isReviewMode = true;
             resultScreen.classList.add('hidden');
@@ -959,7 +932,6 @@
 
         restartBtn.addEventListener('click', () => location.reload());
         restartFooterBtn.addEventListener('click', () => location.reload());
-
     </script>
 </body>
 </html>
